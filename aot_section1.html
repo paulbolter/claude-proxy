@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attack on Titan — Section 1: Inside the Walls</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; display: flex; justify-content: center; padding: 2rem 1rem; }
+  #quiz { width: 100%; max-width: 620px; }
+  .section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 6px; font-family: Arial, sans-serif; }
+  .section-title { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; font-family: Arial, sans-serif; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0 1.5rem; }
+  .progress-bar { flex: 1; height: 4px; background: #ddd; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.3s ease; }
+  .progress-text { font-size: 13px; color: #888; white-space: nowrap; font-family: Arial, sans-serif; }
+  .question-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .question-text { font-size: 17px; color: #1a1a1a; line-height: 1.5; margin-bottom: 1.25rem; font-family: Arial, sans-serif; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 15px; color: #1a1a1a; background: #fff; text-align: left; width: 100%; transition: background 0.15s, border-color 0.15s; font-family: Arial, sans-serif; }
+  .option:hover:not(:disabled) { background: #f5f4f0; border-color: #bbb; }
+  .option.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .option.wrong { background: #FCEBEB; border-color: #E24B4A; color: #791F1F; }
+  .option:disabled { cursor: default; }
+  .letter { font-size: 12px; font-weight: 600; color: #aaa; min-width: 16px; }
+  .option.correct .letter { color: #3B6D11; }
+  .option.wrong .letter { color: #A32D2D; }
+  .feedback { font-size: 13px; margin-top: 10px; padding: 9px 12px; border-radius: 8px; font-family: Arial, sans-serif; line-height: 1.5; }
+  .feedback.correct { background: #EAF3DE; color: #27500A; }
+  .feedback.wrong { background: #FCEBEB; color: #791F1F; }
+  .feedback.hidden { display: none; }
+  .next-btn { margin-top: 1rem; padding: 10px 22px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #1a1a1a; font-size: 14px; cursor: pointer; display: none; font-family: Arial, sans-serif; }
+  .next-btn:hover { background: #f5f4f0; }
+  .next-btn.visible { display: inline-block; }
+  .result { text-align: center; padding: 3rem 0; }
+  .result-score { font-size: 56px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-family: Arial, sans-serif; }
+  .result-label { font-size: 15px; color: #888; margin-bottom: 1rem; font-family: Arial, sans-serif; }
+  .result-msg { font-size: 17px; color: #1a1a1a; margin-bottom: 2rem; font-family: Arial, sans-serif; }
+  .restart-btn { padding: 11px 28px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #1a1a1a; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; }
+  .restart-btn:hover { background: #f5f4f0; }
+</style>
+</head>
+<body>
+<div id="quiz">
+  <div id="quiz-content">
+    <p class="section-label">Attack on Titan</p>
+    <p class="section-title">Section 1 — Inside the Walls</p>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text">1 of 8</span>
+    </div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question</button>
+  </div>
+  <div class="result" id="result" style="display:none">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-label">out of 8</div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="restart-btn" onclick="restart()">Try again</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "What are the three walls called that protect humanity?",
+    options: ["Wall Maria, Wall Rose, Wall Sina", "Wall Titan, Wall Rose, Wall Maria", "Wall Sina, Wall Eren, Wall Rose", "Wall Maria, Wall Levi, Wall Sina"],
+    answer: 0,
+    feedback: "The three walls are Maria (outermost), Rose (middle), and Sina (innermost)."
+  },
+  {
+    q: "What event directly causes Eren to swear he will kill all Titans?",
+    options: ["His father disappears with the basement key", "He watches his mother get eaten by a Titan", "His hometown is destroyed by a boulder", "He fails the military entrance exam"],
+    answer: 1,
+    feedback: "Eren's mother Carla is eaten by the Smiling Titan during the fall of Wall Maria."
+  },
+  {
+    q: "What is the name of the regiment that Eren, Mikasa and Armin eventually join?",
+    options: ["The Garrison Regiment", "The Military Police", "The Scout Regiment", "The Special Operations Squad"],
+    answer: 2,
+    feedback: "They join the Scout Regiment, the branch that ventures beyond the walls."
+  },
+  {
+    q: "What is Mikasa's relationship to Eren?",
+    options: ["His sister by blood", "His childhood friend taken in by his family", "A soldier assigned to protect him", "His cousin from another district"],
+    answer: 1,
+    feedback: "Mikasa was taken in by the Yeager family after her parents were killed."
+  },
+  {
+    q: "What shocking ability does Eren discover he has during the Battle of Trost?",
+    options: ["He can control Titans with his voice", "He can transform into a Titan", "He is immune to Titan bites", "He can see the future in his dreams"],
+    answer: 1,
+    feedback: "Eren transforms into the Attack Titan after being swallowed during battle."
+  },
+  {
+    q: "Captain Levi is described as humanity's strongest soldier. Which regiment is he part of?",
+    options: ["The Garrison Regiment", "The Military Police", "The Scout Regiment", "The Training Corps"],
+    answer: 2,
+    feedback: "Levi is a captain in the Scout Regiment, humanity's frontline against the Titans."
+  },
+  {
+    q: "Throughout Seasons 1 and 2, what does Eren's father's basement represent?",
+    options: ["A place to hide from Titans", "A mystery holding the truth about the world", "Where the military keeps its secrets", "Eren's childhood hiding place"],
+    answer: 1,
+    feedback: "The basement key is passed to Eren by his father — it holds answers about humanity's true history."
+  },
+  {
+    q: "At the end of Season 2, which two characters are revealed to be Titan shifters working against humanity?",
+    options: ["Armin and Historia", "Reiner and Bertholdt", "Levi and Hange", "Ymir and Mikasa"],
+    answer: 1,
+    feedback: "Reiner (the Armored Titan) and Bertholdt (the Colossal Titan) reveal themselves as enemies."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function render() {
+  const q = questions[current];
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('progress-text').textContent = (current + 1) + ' of 8';
+  document.getElementById('progress-fill').style.width = ((current / 8) * 100) + '%';
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = '<span class="letter">' + letters[i] + '</span>' + opt;
+    btn.onclick = function() { choose(i); };
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback hidden';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('next-btn').className = 'next-btn';
+  answered = false;
+}
+
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option');
+  btns.forEach(function(b) { b.disabled = true; });
+  const fb = document.getElementById('feedback');
+  if (i === q.answer) {
+    btns[i].classList.add('correct');
+    fb.className = 'feedback correct';
+    score++;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback wrong';
+  }
+  fb.textContent = q.feedback;
+  document.getElementById('next-btn').className = 'next-btn visible';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResult();
+  } else {
+    render();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-content').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result-score').textContent = score + '/8';
+  const msgs = ["Keep watching!", "Not bad — a few details slipped by.", "Good knowledge of the early story.", "Very good — you know Seasons 1-2 well.", "Perfect score — true Survey Corps material."];
+  const idx = score <= 1 ? 0 : score <= 3 ? 1 : score <= 5 ? 2 : score <= 7 ? 3 : 4;
+  document.getElementById('result-msg').textContent = msgs[idx];
+}
+
+function restart() {
+  current = 0; score = 0; answered = false;
+  document.getElementById('quiz-content').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
